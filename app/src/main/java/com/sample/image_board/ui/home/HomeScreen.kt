@@ -10,9 +10,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -168,7 +168,7 @@ fun HomeScreen(
                                             if (searchQuery.isNotEmpty()) {
                                                 IconButton(onClick = { viewModel.clearSearch() }) {
                                                     Icon(
-                                                            Icons.Default.Clear,
+                                                            Icons.Filled.Clear,
                                                             contentDescription = "Clear search"
                                                     )
                                                 }
@@ -210,11 +210,9 @@ fun HomeScreen(
                                 }
                             },
                             actions = {
+                                // Settings/Logout icon (SRS: no profile page)
                                 IconButton(onClick = { authViewModel.requestLogout() }) {
-                                    Icon(
-                                            Icons.AutoMirrored.Filled.ExitToApp,
-                                            contentDescription = "Logout"
-                                    )
+                                    Icon(Icons.Filled.Settings, contentDescription = "Settings")
                                 }
                             }
                     )
@@ -345,26 +343,19 @@ fun ThreadCard(thread: ThreadWithPermissions, onClick: () -> Unit) {
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Title
+                // Username
                 Text(
-                        text = thread.title,
+                        text = thread.userName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1
                 )
 
-                // Username
-                Text(
-                        text = "by ${thread.userName}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                // Caption (truncated)
+                // Caption (main content per SRS - no title)
                 if (thread.content.isNotEmpty()) {
                     Text(
                             text = thread.content,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 2,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

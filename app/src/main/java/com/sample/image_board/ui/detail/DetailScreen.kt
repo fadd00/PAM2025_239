@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -278,54 +277,42 @@ fun DetailScreen(threadId: String, onBack: () -> Unit, viewModel: DetailViewMode
 
 @Composable
 fun ThreadDetailCard(thread: ThreadWithUser) {
-    Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
+    // No Card wrapper per SRS - direct on background for immersive feel
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Image at TOP (SRS UI-019: Image Full -> Username -> Caption)
+        AsyncImage(
+                model = thread.imageUrl,
+                contentDescription = "Thread Image",
+                modifier = Modifier.fillMaxWidth().heightIn(min = 250.dp, max = 450.dp),
+                contentScale = ContentScale.Crop
+        )
+
+        // Username & Timestamp
         Column(modifier = Modifier.padding(16.dp)) {
-            // Title
-            Text(
-                    text = thread.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Author & Date
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Avatar placeholder
                 Box(
                         modifier =
-                                Modifier.size(24.dp)
+                                Modifier.size(32.dp)
                                         .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .background(MaterialTheme.colorScheme.primary)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                         text = thread.userName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Image
-            AsyncImage(
-                    model = thread.imageUrl,
-                    contentDescription = "Thread Image",
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .heightIn(min = 200.dp, max = 400.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-            )
 
             // Caption
             if (thread.content.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = thread.content, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                        text = thread.content,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }

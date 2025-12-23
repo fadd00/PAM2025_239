@@ -16,10 +16,7 @@ import com.sample.image_board.viewmodel.ForgotPasswordState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPasswordScreen(
-    onNavigateBack: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
-) {
+fun ForgotPasswordScreen(onNavigateBack: () -> Unit, viewModel: AuthViewModel = viewModel()) {
     val state by viewModel.forgotPasswordState.collectAsState()
     val context = LocalContext.current
 
@@ -36,10 +33,11 @@ fun ForgotPasswordScreen(
         when (val currentState = state) {
             is ForgotPasswordState.Success -> {
                 Toast.makeText(
-                    context,
-                    "Email reset password telah dikirim! Silakan cek inbox Anda.",
-                    Toast.LENGTH_LONG
-                ).show()
+                                context,
+                                "Email reset password telah dikirim! Silakan cek inbox Anda.",
+                                Toast.LENGTH_LONG
+                        )
+                        .show()
                 viewModel.resetForgotPasswordState()
                 onNavigateBack()
             }
@@ -52,92 +50,76 @@ fun ForgotPasswordScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Lupa Password") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Kembali"
-                        )
-                    }
-                }
-            )
-        }
+            topBar = {
+                TopAppBar(
+                        title = { Text("Lupa Password") },
+                        navigationIcon = {
+                            IconButton(onClick = onNavigateBack) {
+                                Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Kembali"
+                                )
+                            }
+                        }
+                )
+            }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxSize().padding(paddingValues).padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Icon atau ilustrasi (opsional)
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Reset Password",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Text(text = "Reset Password", style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Masukkan email Anda untuk menerima link reset password",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Enter your email to receive a password reset link",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             // Input Email
             OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    emailError = false
-                },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                isError = emailError,
-                supportingText = {
-                    if (emailError) {
-                        Text("Email tidak valid", color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                enabled = state !is ForgotPasswordState.Loading
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        emailError = false
+                    },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = emailError,
+                    supportingText = {
+                        if (emailError) {
+                            Text("Email tidak valid", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    enabled = state !is ForgotPasswordState.Loading
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Tombol Kirim
             Button(
-                onClick = {
-                    emailError = !isValidEmail(email)
+                    onClick = {
+                        emailError = !isValidEmail(email)
 
-                    if (!emailError) {
-                        viewModel.sendPasswordResetEmail(email.trim())
-                    } else {
-                        Toast.makeText(context, "Email tidak valid", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = state !is ForgotPasswordState.Loading
+                        if (!emailError) {
+                            viewModel.sendPasswordResetEmail(email.trim())
+                        } else {
+                            Toast.makeText(context, "Email tidak valid", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    enabled = state !is ForgotPasswordState.Loading
             ) {
                 if (state is ForgotPasswordState.Loading) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(24.dp)
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(24.dp)
                     )
                 } else {
                     Text("Kirim Email Reset")
@@ -148,30 +130,29 @@ fun ForgotPasswordScreen(
 
             // Info tambahan
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                            CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "ℹ️ Informasi",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "ℹ️ Informasi",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "• Link reset password akan dikirim ke email Anda\n" +
-                                "• Link berlaku selama 1 jam\n" +
-                                "• Cek folder spam jika tidak menerima email",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text =
+                                    "• Link reset password akan dikirim ke email Anda\n" +
+                                            "• Link berlaku selama 1 jam\n" +
+                                            "• Cek folder spam jika tidak menerima email",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
     }
 }
-

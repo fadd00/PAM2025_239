@@ -15,14 +15,14 @@ import com.sample.image_board.viewmodel.AuthViewModel
 
 @Composable
 fun AuthScreen(
-    // Callback: Kalau login sukses, navigasi ke Home
-    onLoginSuccess: () -> Unit,
+        // Callback: Kalau login sukses, navigasi ke Home
+        onLoginSuccess: () -> Unit,
 
-    // Callback: Navigasi ke forgot password screen
-    onForgotPasswordClick: () -> Unit = {},
+        // Callback: Navigasi ke forgot password screen
+        onForgotPasswordClick: () -> Unit = {},
 
-    // Kita inject ViewModel di sini biar rapi
-    viewModel: AuthViewModel = viewModel()
+        // Kita inject ViewModel di sini biar rapi
+        viewModel: AuthViewModel = viewModel()
 ) {
     // Pantau State dari ViewModel (Idle, Loading, Success, Error)
     val state by viewModel.authState.collectAsState()
@@ -72,24 +72,22 @@ fun AuthScreen(
 
     // TAMPILAN UI
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (isLoginMode) "Login ImageBoard" else "Daftar Akun Baru",
-            style = MaterialTheme.typography.headlineMedium
+                text = if (isLoginMode) "Login Imgr" else "Daftar Akun Baru",
+                style = MaterialTheme.typography.headlineMedium
         )
 
         // Info auto-generate username (hanya muncul di mode register)
         if (!isLoginMode) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Username akan dibuat otomatis dengan format anon-XXXXXXXX",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Username akan dibuat otomatis dengan format anon-XXXXXXXX",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -97,79 +95,80 @@ fun AuthScreen(
 
         // Input Email
         OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailError = false // Reset error saat user mengetik
-            },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            isError = emailError,
-            supportingText = {
-                if (emailError) {
-                    Text("Email tidak valid", color = MaterialTheme.colorScheme.error)
+                value = email,
+                onValueChange = {
+                    email = it
+                    emailError = false // Reset error saat user mengetik
+                },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = emailError,
+                supportingText = {
+                    if (emailError) {
+                        Text("Email tidak valid", color = MaterialTheme.colorScheme.error)
+                    }
                 }
-            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Input Password
         OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError = false // Reset error saat user mengetik
-            },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(), // Biar jadi bintang2
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            isError = passwordError,
-            supportingText = {
-                if (passwordError) {
-                    Text("Password minimal 6 karakter", color = MaterialTheme.colorScheme.error)
+                value = password,
+                onValueChange = {
+                    password = it
+                    passwordError = false // Reset error saat user mengetik
+                },
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(), // Biar jadi bintang2
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = passwordError,
+                supportingText = {
+                    if (passwordError) {
+                        Text("Password minimal 6 karakter", color = MaterialTheme.colorScheme.error)
+                    }
                 }
-            }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Tombol Utama
         Button(
-            onClick = {
-                // Validasi input sebelum submit
-                emailError = !isValidEmail(email)
-                passwordError = !isValidPassword(password)
+                onClick = {
+                    // Validasi input sebelum submit
+                    emailError = !isValidEmail(email)
+                    passwordError = !isValidPassword(password)
 
-                // Kalau tidak ada error, proses login/signup
-                if (!emailError && !passwordError) {
-                    // Set flag bahwa ini manual login (bukan auto-check)
-                    isManualLogin = true
+                    // Kalau tidak ada error, proses login/signup
+                    if (!emailError && !passwordError) {
+                        // Set flag bahwa ini manual login (bukan auto-check)
+                        isManualLogin = true
 
-                    if (isLoginMode) {
-                        viewModel.signIn(email, password)
+                        if (isLoginMode) {
+                            viewModel.signIn(email, password)
+                        } else {
+                            viewModel.signUp(email, password)
+                        }
                     } else {
-                        viewModel.signUp(email, password)
+                        // Tampilkan pesan error singkat
+                        val errorMsg =
+                                when {
+                                    emailError && passwordError -> "Email dan password tidak valid"
+                                    emailError -> "Email tidak valid"
+                                    else -> "Password minimal 6 karakter"
+                                }
+                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    // Tampilkan pesan error singkat
-                    val errorMsg = when {
-                        emailError && passwordError -> "Email dan password tidak valid"
-                        emailError -> "Email tidak valid"
-                        else -> "Password minimal 6 karakter"
-                    }
-                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = state !is AuthState.Loading // Disable kalau lagi loading
+                },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                enabled = state !is AuthState.Loading // Disable kalau lagi loading
         ) {
             if (state is AuthState.Loading) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(24.dp)
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
                 )
             } else {
                 Text(if (isLoginMode) "Masuk" else "Daftar Sekarang")
@@ -180,18 +179,13 @@ fun AuthScreen(
 
         // Tombol Lupa Password (hanya muncul di mode login)
         if (isLoginMode) {
-            TextButton(onClick = onForgotPasswordClick) {
-                Text("Lupa Password?")
-            }
+            TextButton(onClick = onForgotPasswordClick) { Text("Lupa Password?") }
             Spacer(modifier = Modifier.height(8.dp))
         }
 
         // Tombol Ganti Mode
         TextButton(onClick = { isLoginMode = !isLoginMode }) {
-            Text(
-                if (isLoginMode) "Belum punya akun? Daftar di sini"
-                else "Sudah punya akun? Login"
-            )
+            Text(if (isLoginMode) "Belum punya akun? Daftar di sini" else "Sudah punya akun? Login")
         }
     }
 }
