@@ -30,15 +30,14 @@ fun SearchScreen(onThreadClick: (String) -> Unit, homeViewModel: HomeViewModel) 
                 }
             }
 
-    // Filter threads based on search query
+    // Filter threads based on search query (caption/content and username only)
     val filteredThreads =
             remember(searchQuery, allThreads) {
                 if (searchQuery.isBlank()) {
                     allThreads
                 } else {
                     allThreads.filter { thread ->
-                        thread.title.contains(searchQuery, ignoreCase = true) ||
-                                thread.content.contains(searchQuery, ignoreCase = true) ||
+                        thread.content.contains(searchQuery, ignoreCase = true) ||
                                 thread.userName.contains(searchQuery, ignoreCase = true)
                     }
                 }

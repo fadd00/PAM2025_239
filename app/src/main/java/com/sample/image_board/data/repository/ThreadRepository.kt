@@ -20,6 +20,7 @@ import io.github.jan.supabase.storage.storage
 class ThreadRepository {
 
     private val supabase = SupabaseClient.client
+    private val authRepository = AuthRepository()
 
     suspend fun getThreadsPaginated(
             offset: Int = 0,
@@ -32,8 +33,6 @@ class ThreadRepository {
                                             Columns.raw(
                                                     """
                         id,
-                        id,
-                        title,
                         caption,
                         image_url,
                         user_id,
@@ -72,7 +71,6 @@ class ThreadRepository {
                                             Columns.raw(
                                                     """
                         id,
-                        title,
                         caption,
                         image_url,
                         user_id,
@@ -108,7 +106,7 @@ class ThreadRepository {
                                             )
                             ) {
                         filter { eq("thread_id", threadId) }
-                        order("created_at", order = Order.DESCENDING)
+                        order("created_at", order = Order.ASCENDING)
                     }
             Result.Success(response.decodeList<CommentResponse>().map { it.toComment() })
         } catch (e: Exception) {
@@ -179,6 +177,14 @@ class ThreadRepository {
                     supabase.auth.currentSessionOrNull()?.user?.id
                             ?: throw Exception("User belum login")
 
+            // Pastikan profile user ada (fix untuk user lama)
+            val profileExists = authRepository.ensureProfileExists()
+            if (!profileExists) {
+                return Result.Error(
+                        Exception("Gagal membuat profile user. Silakan logout dan login kembali.")
+                )
+            }
+
             supabase.from("comments")
                     .insert(
                             mapOf(
@@ -226,16 +232,24 @@ class ThreadRepository {
      * Buat thread baru dengan gambar (ByteArray yang sudah dikompres) imageData WAJIB karena ini
      * image board
      *
-     * @param title Judul thread (wajib)
-     * @param title Judul thread (wajib)
-     * @param caption Caption/deskripsi (opsional)
+     * @param caption Caption/deskripsi (konten utama thread)
      * @param imageData ByteArray gambar yang sudah dikompres
      */
-    suspend fun createThread(title: String, caption: String?, imageData: ByteArray): Result<Unit> {
+    suspend fun createThread(caption: String, imageData: ByteArray): Result<Unit> {
         return try {
-            val userId =
-                    supabase.auth.currentSessionOrNull()?.user?.id
+            val currentUser =
+                    supabase.auth.currentSessionOrNull()?.user
                             ?: throw Exception("User belum login")
+
+            val userId = currentUser.id
+
+            // 0. Pastikan profile user sudah ada di database (fix foreign key issue)
+            val profileExists = authRepository.ensureProfileExists()
+            if (!profileExists) {
+                return Result.Error(
+                        Exception("Gagal membuat profile user. Silakan logout dan login kembali.")
+                )
+            }
 
             // 1. Upload image ke Storage
             val fileName = "img_${userId}_${System.currentTimeMillis()}.jpg"
@@ -246,7 +260,6 @@ class ThreadRepository {
                 supabase.from("threads")
                         .insert(
                                 mapOf(
-                                        "title" to title,
                                         "caption" to caption,
                                         "image_url" to imageUrlResult.data,
                                         "user_id" to userId
@@ -265,12 +278,8 @@ class ThreadRepository {
      * Buat thread baru (legacy method dengan imageUrl langsung) imageUrl WAJIB karena ini image
      * board
      */
-    @Deprecated("Use createThread(title, caption, imageData) instead")
-    suspend fun createThreadWithUrl(
-            title: String,
-            caption: String?,
-            imageUrl: String
-    ): Result<Unit> {
+    @Deprecated("Use createThread(caption, imageData) instead")
+    suspend fun createThreadWithUrl(caption: String?, imageUrl: String): Result<Unit> {
         return try {
             val userId =
                     supabase.auth.currentSessionOrNull()?.user?.id
@@ -279,7 +288,6 @@ class ThreadRepository {
             supabase.from("threads")
                     .insert(
                             mapOf(
-                                    "title" to title,
                                     "caption" to caption,
                                     "image_url" to imageUrl,
                                     "user_id" to userId

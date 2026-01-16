@@ -47,7 +47,7 @@ fun AuthScreen(
     }
 
     fun isValidPassword(password: String): Boolean {
-        return password.length >= 6
+        return password.length >= 8
     }
 
     // Efek Samping (Side Effect) buat nangkep hasil state
@@ -127,7 +127,7 @@ fun AuthScreen(
                 isError = passwordError,
                 supportingText = {
                     if (passwordError) {
-                        Text("Password minimal 6 karakter", color = MaterialTheme.colorScheme.error)
+                        Text("Password minimal 8 karakter", color = MaterialTheme.colorScheme.error)
                     }
                 }
         )
@@ -157,7 +157,7 @@ fun AuthScreen(
                                 when {
                                     emailError && passwordError -> "Email dan password tidak valid"
                                     emailError -> "Email tidak valid"
-                                    else -> "Password minimal 6 karakter"
+                                    else -> "Password minimal 8 karakter"
                                 }
                         Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
                     }

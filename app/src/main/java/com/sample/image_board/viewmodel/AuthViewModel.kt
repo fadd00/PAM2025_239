@@ -125,8 +125,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _authState.value = AuthState.Error("Format email tidak valid")
             return
         }
-        if (pass.length < 6) {
-            _authState.value = AuthState.Error("Password minimal 6 karakter")
+        if (pass.length < 8) {
+            _authState.value = AuthState.Error("Password minimal 8 karakter")
             return
         }
         // --- End of validation ---
@@ -162,7 +162,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                                 // Client-side validation should prevent this, but keep as a
                                 // fallback
                                 result.exception.message?.contains("password", ignoreCase = true) ==
-                                        true -> "Password minimal 6 karakter"
+                                        true -> "Password minimal 8 karakter"
                                 result.exception.message?.contains(
                                         "Invalid email",
                                         ignoreCase = true

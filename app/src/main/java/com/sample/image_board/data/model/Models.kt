@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ThreadResponse(
         val id: String,
-        val title: String,
         val caption: String? = null,
         @SerialName("image_url") val imageUrl: String,
         @SerialName("user_id") val userId: String,
@@ -18,7 +17,6 @@ data class ThreadResponse(
 
 data class ThreadWithUser(
         val id: String,
-        val title: String,
         val content: String,
         val imageUrl: String,
         val userId: String,
@@ -30,7 +28,6 @@ data class ThreadWithUser(
 fun ThreadResponse.toThreadWithUser() =
         ThreadWithUser(
                 id = id,
-                title = title,
                 content = caption ?: "", // caption bisa null, default empty string
                 imageUrl = imageUrl,
                 userId = userId,
@@ -42,7 +39,6 @@ fun ThreadResponse.toThreadWithUser() =
 @Serializable
 data class Thread(
         val id: String,
-        val title: String,
         val content: String,
         @SerialName("image_url") val imageUrl: String? = null,
         @SerialName("user_id") val userId: String,
@@ -101,7 +97,6 @@ data class CommentWithPermissions(
 
 data class ThreadWithPermissions(
         val id: String,
-        val title: String,
         val content: String,
         val imageUrl: String,
         val userId: String,
@@ -130,7 +125,6 @@ fun Comment.toCommentWithPermissions(
 fun ThreadWithUser.toThreadWithPermissions(currentUserId: String, isAdmin: Boolean) =
         ThreadWithPermissions(
                 id = id,
-                title = title,
                 content = content,
                 imageUrl = imageUrl,
                 userId = userId,

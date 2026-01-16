@@ -420,16 +420,6 @@ fun ThreadCard(thread: ThreadWithPermissions, onClick: () -> Unit) {
                         maxLines = 1
                 )
 
-                // Title
-                if (thread.title.isNotEmpty()) {
-                    Text(
-                            text = thread.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1
-                    )
-                }
-
                 // Caption (main content per SRS - no title)
                 if (thread.content.isNotEmpty()) {
                     Text(

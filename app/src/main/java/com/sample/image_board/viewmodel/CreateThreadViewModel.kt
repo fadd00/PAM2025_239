@@ -120,18 +120,17 @@ class CreateThreadViewModel : ViewModel() {
         }
     }
 
-    /** Create thread dengan validasi lengkap (SRS: no title column) */
-    fun createThread(context: Context, title: String, caption: String, imageUri: Uri?) {
+    /** Create thread dengan validasi lengkap (SRS: caption only, no title) */
+    fun createThread(context: Context, caption: String, imageUri: Uri?) {
         viewModelScope.launch {
             _createState.value = CreateThreadState.Loading
 
-            // 0. Validasi Title
-            if (title.isBlank()) {
-                _createState.value = CreateThreadState.Error("Title tidak boleh kosong")
+            // 1. Validasi Caption (WAJIB karena tidak ada title)
+            if (caption.isBlank()) {
+                _createState.value = CreateThreadState.Error("Caption tidak boleh kosong")
                 return@launch
             }
 
-            // 1. Validasi Caption (Opsional tapi ada batas)
             if (caption.length > MAX_CAPTION_LENGTH) {
                 _createState.value =
                         CreateThreadState.Error("Caption maksimal $MAX_CAPTION_LENGTH karakter")
@@ -168,11 +167,10 @@ class CreateThreadViewModel : ViewModel() {
                 val compressedSizeKB = ImageCompressor.getFileSizeKB(imageByteArray)
                 println("📦 Image compressed: ${validation.fileSizeKB}KB → ${compressedSizeKB}KB")
 
-                // 5. Upload ke repository (no title per SRS)
+                // 5. Upload ke repository (caption only, no title per SRS)
                 when (val result =
                                 repository.createThread(
-                                        title = title,
-                                        caption = caption.trim().takeIf { it.isNotEmpty() },
+                                        caption = caption.trim(),
                                         imageData = imageByteArray
                                 )
                 ) {

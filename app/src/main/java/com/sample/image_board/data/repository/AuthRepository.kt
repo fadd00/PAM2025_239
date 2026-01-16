@@ -79,6 +79,35 @@ class AuthRepository {
                     put("full_name", JsonPrimitive(autoUsername)) // Full name = username
                 }
             }
+
+            // Pastikan profile dibuat (fallback jika trigger SQL belum ada atau gagal)
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                try {
+                    // Cek apakah profile sudah ada
+                    val existingProfile = supabase.from("profiles")
+                            .select { filter { eq("id", userId) } }
+                            .decodeSingleOrNull<Profile>()
+
+                    if (existingProfile == null) {
+                        // Profile belum ada, buat manual
+                        supabase.from("profiles")
+                                .insert(
+                                        mapOf(
+                                                "id" to userId,
+                                                "username" to autoUsername,
+                                                "full_name" to autoUsername,
+                                                "role" to "member"
+                                        )
+                                )
+                        println("✅ Profile manually created: $autoUsername")
+                    }
+                } catch (e: Exception) {
+                    println("⚠️ Profile creation failed: ${e.message}")
+                    // Continue anyway, trigger mungkin sudah membuat profile
+                }
+            }
+
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
@@ -100,6 +129,35 @@ class AuthRepository {
                 return Result.Error(Exception("Email not confirmed"))
             }
 
+            // Pastikan profile user ada di database (fix untuk user lama yang mungkin belum punya profile)
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                try {
+                    val existingProfile = supabase.from("profiles")
+                            .select { filter { eq("id", userId) } }
+                            .decodeSingleOrNull<Profile>()
+
+                    if (existingProfile == null) {
+                        // Profile belum ada, buat otomatis
+                        val autoUsername = emailInput.substringBefore("@").replace(".", "_")
+
+                        supabase.from("profiles")
+                                .insert(
+                                        mapOf(
+                                                "id" to userId,
+                                                "username" to autoUsername,
+                                                "full_name" to autoUsername,
+                                                "role" to "member"
+                                        )
+                                )
+                        println("✅ Profile auto-created for existing user: $autoUsername")
+                    }
+                } catch (e: Exception) {
+                    println("⚠️ Profile check/creation failed: ${e.message}")
+                    // Continue anyway, user sudah login
+                }
+            }
+
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
@@ -119,6 +177,48 @@ class AuthRepository {
     /** Get current user ID */
     fun getCurrentUserId(): String? {
         return authClient.currentSessionOrNull()?.user?.id
+    }
+
+    /**
+     * Ensure profile exists for current user
+     * Membuat profile otomatis jika belum ada (fix untuk user lama atau signup yang gagal)
+     *
+     * @return true jika profile ada atau berhasil dibuat, false jika gagal
+     */
+    suspend fun ensureProfileExists(): Boolean {
+        val currentUser = authClient.currentSessionOrNull()?.user ?: return false
+        val userId = currentUser.id
+
+        return try {
+            // Cek apakah profile sudah ada
+            val existingProfile = supabase.from("profiles")
+                    .select { filter { eq("id", userId) } }
+                    .decodeSingleOrNull<Profile>()
+
+            if (existingProfile == null) {
+                // Profile belum ada, buat otomatis
+                val email = currentUser.email ?: "user"
+                val autoUsername = email.substringBefore("@").replace(".", "_")
+
+                supabase.from("profiles")
+                        .insert(
+                                mapOf(
+                                        "id" to userId,
+                                        "username" to autoUsername,
+                                        "full_name" to autoUsername,
+                                        "role" to "member"
+                                )
+                        )
+                println("✅ Profile auto-created: $autoUsername")
+                true
+            } else {
+                // Profile sudah ada
+                true
+            }
+        } catch (e: Exception) {
+            println("⚠️ ensureProfileExists failed: ${e.message}")
+            false
+        }
     }
 
     /**

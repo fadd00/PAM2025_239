@@ -319,19 +319,8 @@ fun ThreadDetailCard(thread: ThreadWithUser) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Title
-            if (thread.title.isNotEmpty()) {
-                Text(
-                        text = thread.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
             // Caption
             if (thread.content.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                         text = thread.content,
                         style = MaterialTheme.typography.bodyLarge,
