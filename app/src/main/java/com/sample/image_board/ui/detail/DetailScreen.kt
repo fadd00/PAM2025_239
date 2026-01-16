@@ -2,6 +2,7 @@ package com.sample.image_board.ui.detail
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.sample.image_board.data.model.CommentWithPermissions
 import com.sample.image_board.data.model.ThreadWithUser
+import com.sample.image_board.ui.components.ImageZoomDialog
 import com.sample.image_board.viewmodel.CommentDeleteState
 import com.sample.image_board.viewmodel.CommentPostState
 import com.sample.image_board.viewmodel.DetailState
@@ -277,13 +279,23 @@ fun DetailScreen(threadId: String, onBack: () -> Unit, viewModel: DetailViewMode
 
 @Composable
 fun ThreadDetailCard(thread: ThreadWithUser) {
+    var showImageZoom by remember { mutableStateOf(false) }
+
+    // Image Zoom Dialog
+    if (showImageZoom) {
+        ImageZoomDialog(imageUrl = thread.imageUrl, onDismiss = { showImageZoom = false })
+    }
+
     // No Card wrapper per SRS - direct on background for immersive feel
     Column(modifier = Modifier.fillMaxWidth()) {
         // Image at TOP (SRS UI-019: Image Full -> Username -> Caption)
         AsyncImage(
                 model = thread.imageUrl,
                 contentDescription = "Thread Image",
-                modifier = Modifier.fillMaxWidth().heightIn(min = 250.dp, max = 450.dp),
+                modifier =
+                        Modifier.fillMaxWidth().heightIn(min = 250.dp, max = 450.dp).clickable {
+                            showImageZoom = true
+                        },
                 contentScale = ContentScale.Crop
         )
 

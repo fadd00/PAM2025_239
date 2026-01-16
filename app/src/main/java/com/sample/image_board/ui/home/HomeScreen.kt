@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.sample.image_board.data.model.ThreadWithPermissions
+import com.sample.image_board.ui.components.ImageZoomDialog
 import com.sample.image_board.viewmodel.AuthViewModel
 import com.sample.image_board.viewmodel.HomeState
 import com.sample.image_board.viewmodel.HomeViewModel
@@ -377,6 +378,13 @@ fun HomeScreen(
 
 @Composable
 fun ThreadCard(thread: ThreadWithPermissions, onClick: () -> Unit) {
+    var showImageZoom by remember { mutableStateOf(false) }
+
+    // Image Zoom Dialog
+    if (showImageZoom && thread.imageUrl.isNotEmpty()) {
+        ImageZoomDialog(imageUrl = thread.imageUrl, onDismiss = { showImageZoom = false })
+    }
+
     Card(
             modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -391,7 +399,10 @@ fun ThreadCard(thread: ThreadWithPermissions, onClick: () -> Unit) {
                 AsyncImage(
                         model = thread.imageUrl,
                         contentDescription = "Thread Image",
-                        modifier = Modifier.size(100.dp).clip(RoundedCornerShape(12.dp)),
+                        modifier =
+                                Modifier.size(100.dp).clip(RoundedCornerShape(12.dp)).clickable {
+                                    showImageZoom = true
+                                },
                         contentScale = ContentScale.Crop
                 )
             }

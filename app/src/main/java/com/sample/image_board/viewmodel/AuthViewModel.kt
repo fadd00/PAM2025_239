@@ -141,10 +141,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         // Email confirmation DISABLED: langsung ada session
                         _authState.value = AuthState.Success
                     } else {
-                        // Fallback: mungkin email confirmation masih aktif
+                        // Email confirmation ENABLED - user perlu verify dulu
                         _authState.value =
                                 AuthState.Error(
-                                        "Registrasi berhasil! Silakan cek email untuk konfirmasi, lalu login."
+                                        "Registrasi berhasil! Silakan cek email Anda dan klik link verifikasi, lalu login kembali."
                                 )
                     }
                 }
@@ -204,7 +204,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                                 result.exception.message?.contains(
                                         "Email not confirmed",
                                         ignoreCase = true
-                                ) == true -> "Email belum dikonfirmasi. Cek inbox email Anda."
+                                ) == true ->
+                                        "Email belum diverifikasi. Silakan cek inbox email Anda dan klik link verifikasi."
                                 // Client-side validation should prevent this, but keep as a
                                 // fallback
                                 result.exception.message?.contains(

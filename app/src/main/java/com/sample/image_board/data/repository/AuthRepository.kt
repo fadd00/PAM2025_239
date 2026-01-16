@@ -32,6 +32,12 @@ class AuthRepository {
         return authClient.currentSessionOrNull()
     }
 
+    /** Check apakah email user sudah diverifikasi */
+    fun isEmailVerified(): Boolean {
+        val user = authClient.currentSessionOrNull()?.user
+        return user?.emailConfirmedAt != null
+    }
+
     /** Get Access Token (untuk keperluan API calls) */
     fun getAccessToken(): String? {
         return authClient.currentAccessTokenOrNull()
@@ -86,6 +92,14 @@ class AuthRepository {
                 email = emailInput
                 password = passwordInput
             }
+
+            // Cek email verification SETELAH login berhasil
+            if (!isEmailVerified()) {
+                // Sign out user yang belum verified
+                authClient.signOut()
+                return Result.Error(Exception("Email not confirmed"))
+            }
+
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)

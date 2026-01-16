@@ -13,16 +13,17 @@ import com.sample.image_board.ui.theme.ImageboardTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Supabase Client dengan context untuk persistent storage
+        com.sample.image_board.utils.SupabaseClient.init(this)
+
         setContent {
             ImageboardTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation()
-                }
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                ) { AppNavigation() }
             }
         }
     }
 }
-

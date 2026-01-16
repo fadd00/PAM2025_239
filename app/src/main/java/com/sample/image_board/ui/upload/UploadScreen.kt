@@ -33,7 +33,6 @@ fun UploadScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            // Placeholder - akan diimplementasikan nanti
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
