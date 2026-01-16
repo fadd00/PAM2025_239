@@ -269,7 +269,7 @@ class HomeViewModel : ViewModel() {
         updateSearchQuery("")
     }
 
-    /** Filter threads based on search query - Search in caption/content and username */
+    /** Filter threads based on search query - Search in caption/content only */
     private fun filterThreads(
             threads: List<ThreadWithPermissions>,
             query: String
@@ -277,10 +277,7 @@ class HomeViewModel : ViewModel() {
         if (query.isEmpty()) return threads
 
         val lowerQuery = query.lowercase()
-        return threads.filter { thread ->
-            thread.content.lowercase().contains(lowerQuery) ||
-                    thread.userName.lowercase().contains(lowerQuery)
-        }
+        return threads.filter { thread -> thread.content.lowercase().contains(lowerQuery) }
     }
 
     /** Reset state (untuk cleanup) */
